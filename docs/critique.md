@@ -1,20 +1,18 @@
 # Part 3 — Review and Critique: thinktac.com
 
-I evaluated **thinktac.com** (built on Shopify) from a platform engineering and performance perspective. Below are two key technical observations:
+I audited multiple pages on **thinktac.com** (Home, Programmes, Schools, and About Us) under desktop and mobile viewports. Below are three platform engineering observations:
 
-### 1. WhatsApp Widget Infinite Console Error Loop
-- **Observation**: The WhatsApp chat widget script (`whatsapp-widget.min.js`) throws an unhandled `TypeError: Cannot read properties of undefined (reading 'options')` continuously. On page load, this prints hundreds of errors per second in the console.
-- **Impact**: This rapid error loop causes massive CPU overhead on the client. It blocks the main thread, leading to UI jank, slow interaction responses, and high battery/resource drain on mobile devices.
-- **Recommendation**: Deactivate the current widget app in the Shopify admin interface and update it to the latest version. If unresolved, replace it with a lightweight, native, and stable messaging integration that does not pollute the event loop.
+### 1. Site-Wide WhatsApp Widget Error Loop
+- **Issue**: On every single page, the WhatsApp chat widget (`whatsapp-widget.min.js`) throws a `TypeError: Cannot read properties of undefined (reading 'options')` continuously.
+- **Impact**: Although the widget is visually functional and responsive to user interactions, this infinite console error loop creates continuous CPU overhead and thread congestion, draining client device battery.
+- **Recommendation**: Upgrade the extension or replace it with a lightweight, native chat integration.
 
-### 2. Sticky Header Null Pointer Exception
-- **Observation**: During scroll events, the theme's core compiled JavaScript throws a `TypeError: Cannot read properties of null (reading 'close')` within the `StickyHeader.closeSearchModal` handler.
-- **Impact**: While navigation remains functional, uncaught exceptions in scroll event handlers can prevent subsequent JS execution in the event loop, causing unpredictable menu behaviors or blocking analytic/telemetry tracking calls.
-- **Recommendation**: Add defensive checks in the theme's sticky header script to verify that the search modal element is mounted before calling its `close()` method:
-  ```javascript
-  closeSearchModal() {
-    if (this.searchModal && typeof this.searchModal.close === 'function') {
-      this.searchModal.close();
-    }
-  }
-  ```
+### 2. Cross-Origin Frame Security Warnings
+- **Issue**: Subpages (Programmes, Schools, About) throw a `SecurityError: Blocked a frame with origin...` exception.
+- **Impact**: This happens because third-party analytics and tracking scripts attempt to read properties from window frames cross-origin. Unsecured scripts failing security checks can stop the execution of subsequent scripts in the main event loop.
+- **Recommendation**: Audit third-party frames and configure scripts to communicate using safe, standardized messaging interfaces (`window.postMessage`).
+
+### 3. Excess Third-Party Script Page Weight
+- **Issue**: Multiple Shopify plugins inject heavy external scripts synchronously.
+- **Impact**: While responsive styles stack correctly and the mobile hamburger menu responds instantly on click, synchronous scripts increase Total Blocking Time (TBT), delaying the time it takes for a page to become fully interactive on low-tier mobile devices.
+- **Recommendation**: Perform a dependency audit to prune unused extensions. Use the `defer` or `async` attribute for all non-critical third-party integrations.
