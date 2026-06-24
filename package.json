@@ -1,37 +1,21 @@
 {
-  "name": "activity-ledger-app",
+  "name": "activity-ledger-root",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "client": "npm --prefix client run dev",
     "server": "npm --prefix server run dev",
     "emulators": "firebase emulators:start",
-    "dev:all": "concurrently -n \"emulators,server,client\" -c \"cyan,magenta,green\" \"npm run emulators\" \"npm run server\" \"npm run dev\"",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "firebase": "^10.12.0",
-    "lucide-react": "^0.378.0",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "dev:all": "concurrently -n \"emulators,server,client\" -c \"cyan,magenta,green\" \"npm run emulators\" \"npm run server\" \"npm run client\"",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build",
+    "build:all": "npm run build:client && npm run build:server",
+    "lint:client": "npm --prefix client run lint",
+    "lint:server": "npm --prefix server run lint"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/node": "^24.12.3",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^8.2.2",
-    "eslint": "^10.3.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "firebase-tools": "^13.11.2",
-    "globals": "^17.6.0",
-    "typescript": "~6.0.2",
-    "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "firebase-tools": "^13.11.2"
   }
 }
