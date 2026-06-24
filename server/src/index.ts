@@ -8,7 +8,7 @@ dotenv.config({ path: '../.env' });
 dotenv.config();
 
 const port = process.env.PORT || 3001;
-const projectId = process.env.FIREBASE_PROJECT_ID || 'activity-ledger-app';
+const projectId = process.env.FIREBASE_PROJECT_ID || 'demo-activity-ledger';
 
 // Ensure emulator environment variables are set for firebase-admin
 // when running against local emulators.
@@ -81,7 +81,7 @@ const verifyToken = async (
 };
 
 // API Endpoint to write user events
-app.post('/api/events', (async (
+app.post('/api/events', verifyToken as any, (async (
   req: AuthenticatedRequest,
   res: express.Response
 ) => {
