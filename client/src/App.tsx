@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -38,6 +38,9 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [isSignUp, setIsSignUp] = useState(false);
   
+  const signingUpRef = useRef(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  
   // Auth Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,6 +66,9 @@ function App() {
   // Handle Authentication State Changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser: any) => {
+      if (signingUpRef.current) {
+        return;
+      }
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
@@ -154,16 +160,28 @@ function App() {
     try {
       if (isSignUp) {
         // Sign Up
+        signingUpRef.current = true;
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         // Log sign-up event to server
         await logEventToServer(userCredential.user, 'USER_SIGN_UP', { email });
+        
+        // Immediately sign out to prevent auto-login
+        await signOut(auth);
+        
+        signingUpRef.current = false;
+        setUser(null);
+        setIsSignUp(false);
+        setSuccessMessage('Account created successfully! Please sign in with your credentials.');
+        setPassword('');
       } else {
         // Sign In
+        setSuccessMessage('');
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         // Log sign-in event to server
         await logEventToServer(userCredential.user, 'USER_SIGN_IN', { email });
       }
     } catch (err: any) {
+      signingUpRef.current = false;
       console.error(err);
       let friendlyMessage = err.message;
       if (err.code === 'auth/invalid-credential') {
@@ -311,6 +329,13 @@ function App() {
                 </div>
               )}
 
+              {successMessage && (
+                <div className="alert alert-success">
+                  <AlertCircle className="alert-icon" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
               <form onSubmit={handleAuthSubmit} className="auth-form">
                 <div className="form-group">
                   <label htmlFor="email">Email Address</label>
@@ -358,7 +383,7 @@ function App() {
               </form>
 
               <div className="auth-toggle">
-                <button type="button" className="btn-link" onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}>
+                <button type="button" className="btn-link" onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); setSuccessMessage(''); }}>
                   {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
                 </button>
               </div>

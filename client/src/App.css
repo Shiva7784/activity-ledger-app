@@ -278,6 +278,12 @@ body {
   color: #fda4af;
 }
 
+.alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+}
+
 .alert-icon {
   width: 20px;
   height: 20px;
