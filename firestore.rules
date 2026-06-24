@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Activity ledger events collection rules
+    match /events/{eventId} {
+      // Users can only read their own events (where the event's userId matches request's UID)
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // All writes from client-side Web SDK are strictly denied.
+      // Events can only be written by the server logic layer (using Firebase Admin SDK).
+      allow write: if false;
+    }
+  }
+}
