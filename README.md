@@ -41,6 +41,16 @@ activity-ledger-app/
 
 ---
 
+## Application Screenshots
+
+### Client Dashboard UI
+![Client Dashboard UI](docs/images/client_dashboard.png)
+
+### Firebase Emulator Firestore DB UI
+![Firebase Emulator UI](docs/images/firebase_emulator_ui.png)
+
+---
+
 ## Setup & Running Locally
 
 ### Prerequisites
